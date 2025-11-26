@@ -1,0 +1,12 @@
+[Interface]
+Address = 10.8.1.2/24
+DNS = 1.1.1.1, 8.8.8.8
+PrivateKey = YOUR_PRIVATE_KEY_HERE
+
+[Peer]
+PublicKey = SERVER_PUBLIC_KEY_HERE
+PresharedKey = PRESHARED_KEY_IF_USED
+AllowedIPs = 0.0.0.0/0
+Endpoint = YOUR_VPS_IP:PORT
+PersistentKeepalive = 25
+

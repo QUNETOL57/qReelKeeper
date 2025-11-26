@@ -1,11 +1,40 @@
 services:
+  vpn:
+    image: lscr.io/linuxserver/wireguard:latest
+    container_name: wireguard_vpn
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - ./config/wg/wg0.conf:/config/wg_confs/wg0.conf:ro
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv6.conf.all.disable_ipv6=0
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "ping", "-c", "1", "1.1.1.1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
   app:
     build: .
     container_name: app
     restart: unless-stopped
+    # Используем сеть VPN контейнера - весь трафик бота через WireGuard
+    network_mode: "service:vpn"
+    depends_on:
+      vpn:
+        condition: service_healthy
     env_file:
       - .env
     environment:
       - BOT_TOKEN=${BOT_TOKEN}
     volumes:
       - ./downloads:/app/downloads
+
